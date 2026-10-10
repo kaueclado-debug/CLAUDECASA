@@ -1,5 +1,8 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/casa-isadora-kaue-3d.html" }
+  ],
+  "redirects": [
+    { "source": "/kart", "destination": "/kart/" }
   ]
 }
