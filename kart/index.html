@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Turbo Kart Mania</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game">
+  <canvas id="gl"></canvas>
+  <canvas id="hud"></canvas>
+</div>
+
+<div id="ui">
+  <!-- TÍTULO -->
+  <section class="screen" id="scr-title">
+    <div class="logo"><span class="l1">TURBO</span><span class="l2">KART MANIA</span></div>
+    <p class="tagline">Corrida maluca para até 4 jogadores + bots • 12 pilotos na pista</p>
+    <div class="menu-col">
+      <button class="nav big" data-act="play">Jogar</button>
+      <button class="nav" data-act="controls">Controles</button>
+      <div class="row">
+        <button class="nav small" data-act="toggle-sfx" id="btn-sfx">Efeitos: Ligados</button>
+        <button class="nav small" data-act="toggle-music" id="btn-music">Música: Ligada</button>
+      </div>
+    </div>
+    <div class="pads" id="title-pads"></div>
+  </section>
+
+  <!-- ENTRADA DE JOGADORES -->
+  <section class="screen" id="scr-join" data-back="title">
+    <h1>Quem vai correr?</h1>
+    <p class="hint" id="join-hint">Controle: aperte <b>A / ✕</b> • Teclado A: <b>Espaço</b> • Teclado B: <b>Enter</b> • ou clique em “Entrar com teclado/mouse”</p>
+    <div class="slots" id="slots"></div>
+    <p class="hint">◀ ▶ escolhe o piloto • confirmar = <b>Pronto</b> • voltar = sair • quando todos estiverem prontos, confirme de novo para continuar</p>
+    <div class="row">
+      <button class="nav" data-act="back">Voltar</button>
+      <button class="nav" data-act="join-kb">Entrar com teclado/mouse</button>
+      <button class="nav primary" data-act="join-next" id="btn-join-next">Continuar ▶</button>
+    </div>
+    <div class="pads" id="join-pads"></div>
+  </section>
+
+  <!-- CONFIGURAÇÃO -->
+  <section class="screen" id="scr-setup" data-back="join">
+    <h1>Configurar corrida</h1>
+    <div class="setup">
+      <div class="opt">
+        <span class="opt-label">Modo</span>
+        <div class="seg" data-group="mode">
+          <button class="nav" data-value="single">Corrida única</button>
+          <button class="nav" data-value="gp">Grande Prêmio (5 pistas)</button>
+        </div>
+      </div>
+      <div class="opt" id="opt-track">
+        <span class="opt-label">Pista</span>
+        <div class="tracks seg" data-group="track" id="track-cards"></div>
+      </div>
+      <div class="opt">
+        <span class="opt-label">Dificuldade</span>
+        <div class="seg" data-group="diff">
+          <button class="nav" data-value="0">Fácil • 50cc</button>
+          <button class="nav" data-value="1">Médio • 100cc</button>
+          <button class="nav" data-value="2">Difícil • 150cc</button>
+        </div>
+      </div>
+      <div class="opt">
+        <span class="opt-label">Voltas</span>
+        <div class="seg" data-group="laps">
+          <button class="nav" data-value="2">2</button>
+          <button class="nav" data-value="3">3</button>
+          <button class="nav" data-value="5">5</button>
+        </div>
+      </div>
+      <p class="summary" id="setup-summary"></p>
+    </div>
+    <div class="row">
+      <button class="nav" data-act="back">Voltar</button>
+      <button class="nav primary big" data-act="start">Correr! 🏁</button>
+    </div>
+  </section>
+
+  <!-- CONTROLES -->
+  <section class="screen" id="scr-controls" data-back="title">
+    <h1>Controles</h1>
+    <div class="table-wrap">
+      <table class="ctl">
+        <thead><tr><th>Ação</th><th>Xbox</th><th>PS5</th><th>Teclado A + Mouse</th><th>Teclado B</th></tr></thead>
+        <tbody>
+          <tr><td>Acelerar</td><td>A ou RT</td><td>✕ ou R2</td><td>W ou botão esquerdo</td><td>↑</td></tr>
+          <tr><td>Frear / ré</td><td>B ou LT</td><td>○ ou L2</td><td>S</td><td>↓</td></tr>
+          <tr><td>Virar</td><td>Analógico / D-pad</td><td>Analógico / D-pad</td><td>A / D ou mover o mouse</td><td>← / →</td></tr>
+          <tr><td>Pular / Drift</td><td>RB</td><td>R1</td><td>Espaço / Shift ou botão do meio</td><td>Shift direito ou .</td></tr>
+          <tr><td>Usar poder</td><td>LB ou X</td><td>L1 ou □</td><td>E / Q ou botão direito</td><td>Enter ou Ctrl direito</td></tr>
+          <tr><td>Olhar para trás / jogar casco para trás</td><td>Y</td><td>△</td><td>R</td><td>,</td></tr>
+          <tr><td>Pausa</td><td>Menu</td><td>Options</td><td>Esc / P</td><td>Esc</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tips">
+      <p><b>Drift com turbo:</b> segure o drift numa curva. As faíscas ficam <span style="color:#40b0ff">azuis</span>, depois <span style="color:#ff8a00">laranjas</span> e <span style="color:#d060ff">roxas</span>. Solte para ganhar turbo.</p>
+      <p><b>Largada turbo:</b> acelere logo depois do “2” aparecer na contagem.</p>
+      <p><b>Mouse:</b> clique na tela durante a corrida e mova o mouse para a esquerda/direita para virar.</p>
+      <p><b>Poderes:</b> 🍄 Turbo • 🍄x3 Turbo Triplo • 🟢 Casco Verde (ricocheteia) • 🔴 Casco Vermelho (teleguiado) • 🍌 Banana • ⭐ Estrela (invencível) • ⚡ Raio (encolhe todos) • 💣 Bomba • 🦑 Tinta (cega quem está na frente)</p>
+      <p>Controles Xbox e PS5 (Bluetooth ou USB) são detectados automaticamente — aperte qualquer botão se não aparecerem.</p>
+    </div>
+    <div class="row"><button class="nav" data-act="back">Voltar</button></div>
+  </section>
+
+  <!-- PAUSA -->
+  <section class="screen overlay" id="scr-pause">
+    <h1>Pausa</h1>
+    <div class="menu-col">
+      <button class="nav big" data-act="resume">Continuar</button>
+      <button class="nav" data-act="restart">Reiniciar corrida</button>
+      <button class="nav" data-act="quit">Sair para o menu</button>
+    </div>
+  </section>
+
+  <!-- RESULTADOS -->
+  <section class="screen overlay" id="scr-results">
+    <h1 id="res-title">Resultado</h1>
+    <div class="table-wrap"><table class="res" id="res-table"></table></div>
+    <div class="row" id="res-buttons"></div>
+  </section>
+</div>
+
+<div id="toasts"></div>
+
+<script src="lib/three.min.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/tracks.js"></script>
+<script src="js/models.js"></script>
+<script src="js/race.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
