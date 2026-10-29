@@ -42,8 +42,9 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 "DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:650;letter-spacing:-.01em;margin:0}
-.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
-header.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
 header.top .wrap{display:flex;align-items:center;gap:14px;padding-top:14px;padding-bottom:14px;flex-wrap:wrap}
 .logo{width:40px;height:40px;border-radius:10px;background:var(--brand);display:grid;place-items:center;color:#fff;flex:none}
 .logo svg{width:22px;height:22px}
@@ -52,7 +53,9 @@ header.top .wrap{display:flex;align-items:center;gap:14px;padding-top:14px;paddi
 .pill{display:inline-flex;align-items:center;gap:6px;background:var(--brand-soft);color:var(--brand-ink);border:1px solid var(--brand-soft-2);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:500}
 .spacer{flex:1}
 .iconbtn{border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:8px;padding:6px 10px;cursor:pointer;font:inherit;font-size:13px}
-main{padding:24px 0 60px}
+main.wrap{padding-block:24px 60px}
+.exemplo{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--info-soft);border:1px solid color-mix(in srgb,var(--info) 30%,transparent);border-radius:10px;padding:10px 14px;font-size:13.5px;margin-bottom:16px}
+.exemplo[hidden]{display:none}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
 .card h2{font-size:20px;display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .card .sub{color:var(--ink-2);font-size:13.5px;margin:0 0 16px}
@@ -187,6 +190,7 @@ footer{color:var(--ink-3);font-size:12.5px;text-align:center;padding:20px 16px 4
   <section class="card" id="form">
     <h2>🏢 Dados da empresa</h2>
     <p class="sub">Preencha os dados anuais. Campos em branco usam estimativas padrão do setor.</p>
+    <div class="exemplo" id="exemplo" hidden><span><b>Exemplo preenchido:</b> uma empresa de comércio fictícia com R$ 3,5 milhões de faturamento. Troque pelos dados da sua empresa.</span><button type="button" class="btn ghost small" id="limpar">Limpar formulário</button></div>
 
     <div class="seg" role="group" aria-label="Estrutura da empresa">
       <button type="button" id="modeUnica" aria-pressed="true"><span class="ic">🏬</span>Empresa única</button>
@@ -780,11 +784,11 @@ function bindChart(proj){
 }
 
 let ultimo = null;
-function simular(){
+function simular(rolar=true){
   const inp = readInputs();
   $('#err').textContent = '';
   if (!(inp.R>0)){ $('#err').textContent = 'Informe o faturamento anual (ou o faturamento de cada estabelecimento).'; return; }
-  save();
+  if (rolar) save();
 
   const mei = calcMEI(inp);
   const s = calcSimples(inp);
@@ -921,9 +925,11 @@ function simular(){
     </table></div>
     <p class="help">*Faturamento − despesas − folha/FGTS − tributos. Recomendação 2026: <b>${best.nome}</b>. Menor carga projetada em 2033: <b>${best33[0]}</b>.</p>
     <div class="actions">
-      <button class="btn ghost small" type="button" id="btnPrint">🖨️ Imprimir / PDF</button>
-      <button class="btn small" type="button" id="btnCsv">⬇ Baixar planilha (CSV)</button>
-      <button class="btn small" type="button" id="btnHtml">⬇ Baixar relatório</button>
+      <span class="help" id="copyMsg" role="status"></span>
+      <button class="btn ghost small" type="button" id="btnCopy">📋 Copiar relatório</button>
+      <button class="btn ghost small" type="button" id="btnPrint" data-file>🖨️ Imprimir / PDF</button>
+      <button class="btn small" type="button" id="btnCsv" data-file>⬇ Baixar planilha (CSV)</button>
+      <button class="btn small" type="button" id="btnHtml" data-file>⬇ Baixar relatório</button>
     </div>
   </section>`;
   const out = $('#results');
@@ -932,7 +938,8 @@ function simular(){
   $('#btnPrint').onclick = () => { document.querySelectorAll('details.mem').forEach(d=>d.open=true); window.print(); };
   $('#btnCsv').onclick = baixarCSV;
   $('#btnHtml').onclick = baixarHTML;
-  out.scrollIntoView({behavior:'smooth', block:'start'});
+  $('#btnCopy').onclick = copiarRelatorio;
+  if (rolar) out.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function download(name, content, type){
@@ -961,6 +968,29 @@ function baixarHTML(){
   download(`relatorio-tributario-${slug(ultimo.inp.nome)}.html`, doc, 'text/html;charset=utf-8');
 }
 
+function textoRelatorio(){
+  const {inp, regs, best, proj} = ultimo;
+  const p33 = proj[proj.length-1];
+  const L = [`Planejamento tributário — ${inp.nome}`, `Faturamento anual: ${brl(inp.R)}`, ''];
+  L.push('Comparativo 2026:');
+  regs.forEach(r => L.push(`- ${r.nome}: ${r.elegivel ? brl(r.total)+' ('+pct(r.total/inp.R)+')' : 'não elegível ('+r.motivo+')'}${r===best?' ← recomendado':''}`));
+  L.push('', 'Projeção 2033 (sistema pleno IBS/CBS):');
+  SERIES.forEach(s => { if (p33[s.k]!=null) L.push(`- ${s.nome}: ${brl(p33[s.k])}`); });
+  L.push('', 'Estimativa para planejamento; confirme com seu contador.');
+  return L.join('\n');
+}
+function copiarRelatorio(){
+  if (!ultimo) return;
+  const t = textoRelatorio(), msg = $('#copyMsg');
+  const ok = () => { msg.textContent = 'Relatório copiado.'; };
+  const falha = () => {
+    const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
+    let feito = false; try { feito = document.execCommand('copy'); } catch(e){}
+    ta.remove(); msg.textContent = feito ? 'Relatório copiado.' : 'Não foi possível copiar. Selecione o texto do relatório e copie manualmente.';
+  };
+  try { navigator.clipboard.writeText(t).then(ok, falha); } catch(e){ falha(); }
+}
+
 /* ======================= Persistência local ======================= */
 function save(){
   try {
@@ -972,12 +1002,14 @@ function save(){
 }
 function load(){
   try {
-    const d = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!d) return;
+    const d = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!d) return false;
     Object.assign(state, d.state);
     FIELDS.forEach(id => { if (d.f[id]!==undefined) $('#'+id).value = d.f[id]; });
     $('#hosp').checked = !!d.f.hosp; $('#lc224').checked = d.f.lc224!==false;
-  } catch(e){}
+    return true;
+  } catch(e){ return false; }
 }
+const EXEMPLO = {nome:'Comercial ABC Ltda (exemplo)', fat:3500000, sal:50000, pro:15000, desp:2000000};
 
 /* tema */
 $('#themeBtn').addEventListener('click', () => {
@@ -988,10 +1020,16 @@ $('#themeBtn').addEventListener('click', () => {
 });
 try { const t = localStorage.getItem('simtrib.theme'); if (t) document.documentElement.dataset.theme = t; } catch(e){}
 
-load();
+const temDados = load();
+if (!temDados) Object.entries(EXEMPLO).forEach(([k,v]) => { $('#'+k).value = v; });
 renderChips();
 setMode(state.mode);
-$('#simular').addEventListener('click', simular);
+$('#simular').addEventListener('click', () => { $('#exemplo').hidden = true; simular(); });
+$('#limpar').addEventListener('click', () => {
+  FIELDS.forEach(id => { const el = $('#'+id); if (el.tagName==='SELECT') el.selectedIndex = 0; else el.value = ''; });
+  $('#exemplo').hidden = true; $('#results').hidden = true; $('#nome').focus();
+});
+if (!temDados){ $('#exemplo').hidden = false; simular(false); }
 document.addEventListener('keydown', ev => { if (ev.key==='Enter' && ev.target.matches('#form input')) simular(); });
 })();
 </script>
