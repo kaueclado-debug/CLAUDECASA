@@ -3,6 +3,7 @@
     { "source": "/", "destination": "/casa-isadora-kaue-3d.html" }
   ],
   "redirects": [
-    { "source": "/kart", "destination": "/kart/" }
+    { "source": "/kart", "destination": "/kart/" },
+    { "source": "/planejamento", "destination": "/planejamento/" }
   ]
 }

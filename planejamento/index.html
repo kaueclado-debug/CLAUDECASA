@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador Tributário 2026</title>
+<meta name="description" content="Planejamento tributário: compare MEI, Simples Nacional, Simples Híbrido, Lucro Presumido e Lucro Real, com projeção da Reforma Tributária (CBS e IBS – LC 214/2025).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f3f5f2; --card:#ffffff; --card-2:#f7f9f6; --line:#dfe5dd; --line-2:#c9d3c6;
+  --ink:#16211b; --ink-2:#4b5850; --ink-3:#7a867e;
+  --brand:#16794a; --brand-ink:#0f5c37; --brand-soft:#e3f3e9; --brand-soft-2:#cfe9d9;
+  --warn:#9a6200; --warn-soft:#fff4dc; --bad:#b42323; --bad-soft:#fde8e6; --info:#2453a6; --info-soft:#e7eefb;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#6250d6;
+  --shadow:0 1px 2px rgba(20,40,30,.06),0 6px 24px rgba(20,40,30,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#101512; --card:#171d19; --card-2:#1c241f; --line:#2a342e; --line-2:#36423b;
+    --ink:#eef2ee; --ink-2:#b8c3bb; --ink-3:#8a968e;
+    --brand:#3fb67a; --brand-ink:#6fd29e; --brand-soft:#173225; --brand-soft-2:#1f4431;
+    --warn:#e8b04a; --warn-soft:#33280f; --bad:#ef7a72; --bad-soft:#3a1a18; --info:#8fb1f0; --info-soft:#1a2540;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#9085e9;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#101512; --card:#171d19; --card-2:#1c241f; --line:#2a342e; --line-2:#36423b;
+  --ink:#eef2ee; --ink-2:#b8c3bb; --ink-3:#8a968e;
+  --brand:#3fb67a; --brand-ink:#6fd29e; --brand-soft:#173225; --brand-soft-2:#1f4431;
+  --warn:#e8b04a; --warn-soft:#33280f; --bad:#ef7a72; --bad-soft:#3a1a18; --info:#8fb1f0; --info-soft:#1a2540;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#9085e9;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:650;letter-spacing:-.01em;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header.top .wrap{display:flex;align-items:center;gap:14px;padding-top:14px;padding-bottom:14px;flex-wrap:wrap}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--brand);display:grid;place-items:center;color:#fff;flex:none}
+.logo svg{width:22px;height:22px}
+.brandtxt h1{font-size:22px}
+.brandtxt p{margin:0;color:var(--ink-2);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--brand-soft);color:var(--brand-ink);border:1px solid var(--brand-soft-2);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:500}
+.spacer{flex:1}
+.iconbtn{border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:8px;padding:6px 10px;cursor:pointer;font:inherit;font-size:13px}
+main{padding:24px 0 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
+.card h2{font-size:20px;display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.card .sub{color:var(--ink-2);font-size:13.5px;margin:0 0 16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:6px;margin-bottom:18px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:12px 8px;font:inherit;font-weight:500;color:var(--ink-2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.seg button .ic{font-size:20px}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow);outline:1px solid var(--line-2)}
+label.lbl{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);margin:0 0 6px}
+label.lbl .hint{text-transform:none;letter-spacing:0;font-weight:500;color:var(--brand);font-size:12px}
+.help{font-size:12px;color:var(--ink-3);margin:5px 0 0}
+input[type=text],input[type=number],select{width:100%;border:1px solid var(--line-2);background:var(--card-2);color:var(--ink);border-radius:9px;padding:10px 12px;font:inherit;min-width:0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.money{position:relative}
+.money span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:14px;pointer-events:none}
+.money input{padding-left:38px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:720px){.g2,.g3{grid-template-columns:1fr}}
+.field{margin-bottom:16px;min-width:0}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.chip{border:1px solid var(--line);background:var(--card-2);border-radius:10px;padding:12px 6px;cursor:pointer;font:inherit;font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.chip .ic{font-size:20px}
+.chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-ink);font-weight:500}
+.mix{margin-top:12px;border:1px dashed var(--line-2);border-radius:10px;padding:12px}
+.mixrow,.estrow{display:grid;gap:8px;align-items:end;margin-bottom:8px}
+.mixrow{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}
+.estrow{grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) minmax(0,1.3fr) minmax(0,.8fr) 36px}
+@media (max-width:720px){.estrow{grid-template-columns:1fr 1fr}.estrow .rm{grid-column:2;justify-self:end}}
+.mixrow small,.estrow small{display:block;font-size:11px;color:var(--ink-3);margin-bottom:3px}
+.mixname{font-weight:500;padding-bottom:10px}
+.rm{border:1px solid var(--line);background:var(--card);border-radius:8px;height:40px;cursor:pointer;color:var(--bad);font-size:16px}
+.btn{border:0;background:var(--brand);color:#fff;border-radius:10px;padding:13px 22px;font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line-2)}
+.btn.small{padding:8px 14px;font-weight:500;font-size:14px}
+details.adv{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:4px 0 18px;background:var(--card-2)}
+details.adv summary{cursor:pointer;font-weight:500;color:var(--ink-2)}
+details.adv[open] summary{margin-bottom:12px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--ink-2)}
+.check input{margin-top:3px;accent-color:var(--brand)}
+.err{color:var(--bad);font-size:13px;margin-top:8px}
+/* results */
+#results[hidden]{display:none}
+.hero{background:linear-gradient(135deg,var(--brand-soft),var(--card));border:1px solid var(--brand-soft-2)}
+.hero .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-end}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-ink)}
+.hero h2{font-size:34px;margin:4px 0}
+.hero .meta{color:var(--ink-2);font-size:14px}
+.save{text-align:right}
+.save .big{font-family:Fraunces,Georgia,serif;font-size:32px;font-weight:650;color:var(--brand-ink)}
+.save .meta{font-size:13px}
+.regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.reg{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--card);position:relative;display:flex;flex-direction:column}
+.reg.best{border:2px solid var(--brand);background:var(--brand-soft)}
+.reg.off{opacity:.6}
+.tag{position:absolute;top:-10px;left:14px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+.tag.best{background:var(--brand);color:#fff}
+.tag.worst{background:var(--bad);color:#fff}
+.tag.na{background:var(--ink-3);color:#fff}
+.reg h3{font-family:"DM Sans",sans-serif;font-size:15px;font-weight:700;margin-top:4px}
+.reg .val{font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:650;margin:6px 0 0}
+.reg .lab{font-size:12px;color:var(--ink-3)}
+.meter{display:flex;align-items:center;gap:8px;margin:10px 0}
+.meter .track{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.meter .fill{height:100%;border-radius:4px;background:var(--ink-2)}
+.reg.best .meter .fill{background:var(--brand)}
+.meter b{font-size:12px;color:var(--ink-2);font-weight:500;min-width:44px;text-align:right}
+.brk{list-style:none;margin:6px 0 0;padding:0;font-size:13px}
+.brk li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dotted var(--line)}
+.brk li span:first-child{color:var(--ink-2)}
+.why{font-size:12.5px;color:var(--ink-2);margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.hl td{background:var(--brand-soft)}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+details.mem{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--card)}
+details.mem summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--brand-ink);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+details.mem summary span{color:var(--ink-2);font-weight:500}
+details.mem .tscroll{padding:0 14px 12px}
+td.f{color:var(--ink-3);font-size:12.5px}
+.note{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+.note.ok{background:var(--brand-soft);color:var(--ink);border:1px solid var(--brand-soft-2)}
+.note.warn{background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent)}
+.note.info{background:var(--info-soft);border:1px solid color-mix(in srgb,var(--info) 30%,transparent)}
+.note b.t{display:block;margin-bottom:4px}
+.note ul{margin:4px 0 0;padding-left:18px}
+.timeline{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;margin:8px 0 16px}
+.timeline div{background:var(--card-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;font-size:11.5px;color:var(--ink-2);min-width:0}
+.timeline div b{display:block;font-size:13px;color:var(--ink)}
+@media (max-width:720px){.timeline{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.chart{position:relative;margin:8px 0 6px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-bottom:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--line-2);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:12.5px;min-width:190px;z-index:3}
+.tip[hidden]{display:none}
+.tip .h{font-weight:700;margin-bottom:4px}
+.tip .r{display:flex;justify-content:space-between;gap:12px}
+.tip .r i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--card-2)}
+.kpi .l{font-size:12px;color:var(--ink-3)}
+.kpi .v{font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:650}
+.kpi .d{font-size:12px;color:var(--ink-2)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:16px}
+.badge{display:inline-block;font-size:11px;font-weight:700;background:var(--brand);color:#fff;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+footer{color:var(--ink-3);font-size:12.5px;text-align:center;padding:20px 16px 40px}
+@media print{
+  header.top,#form,.actions,.iconbtn,footer .np{display:none!important}
+  body{background:#fff;color:#000}
+  .card{box-shadow:none;break-inside:avoid}
+  details.mem{display:block}
+  details.mem>*{display:block}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h8"/></svg></div>
+    <div class="brandtxt"><h1>Simulador Tributário</h1><p>Planejamento inteligente por regime — 2026</p></div>
+    <div class="spacer"></div>
+    <span class="pill">✓ Inclui Reforma Tributária LC 214/2025</span>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Alternar tema">◐ Tema</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" id="form">
+    <h2>🏢 Dados da empresa</h2>
+    <p class="sub">Preencha os dados anuais. Campos em branco usam estimativas padrão do setor.</p>
+
+    <div class="seg" role="group" aria-label="Estrutura da empresa">
+      <button type="button" id="modeUnica" aria-pressed="true"><span class="ic">🏬</span>Empresa única</button>
+      <button type="button" id="modeMulti" aria-pressed="false"><span class="ic">🏬🏬🏬</span>Múltiplos estabelecimentos</button>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="nome">Nome / razão social</label>
+      <input type="text" id="nome" placeholder="Ex: Comercial ABC Ltda">
+    </div>
+
+    <div id="blocoUnica">
+      <div class="field">
+        <label class="lbl">Setor de atividade <span class="hint">— clique em mais de um para misturar</span></label>
+        <div class="chips" id="chips"></div>
+        <div class="mix" id="mix"></div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="fat">Faturamento anual (R$) — receita bruta dos últimos 12 meses</label>
+        <div class="money"><span>R$</span><input type="number" id="fat" min="0" step="1000" placeholder="0,00"></div>
+      </div>
+    </div>
+
+    <div id="blocoMulti" hidden>
+      <div class="field">
+        <label class="lbl">Estabelecimentos <span class="hint">— cada unidade com seu setor e faturamento</span></label>
+        <div id="ests"></div>
+        <button type="button" class="btn ghost small" id="addEst">+ Adicionar estabelecimento</button>
+        <p class="help">O faturamento somado de todas as unidades define a faixa do Simples (RBT12) e os limites de cada regime.</p>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="field">
+        <label class="lbl" for="sal">Folha de salários mensal (R$)</label>
+        <div class="money"><span>R$</span><input type="number" id="sal" min="0" step="100" placeholder="0,00"></div>
+        <p class="help">Salários brutos de empregados CLT (sem encargos).</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="pro">Pró-labore mensal dos sócios (R$)</label>
+        <div class="money"><span>R$</span><input type="number" id="pro" min="0" step="100" placeholder="0,00"></div>
+        <p class="help">Ambos compõem o Fator R do Simples Nacional.</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="desp">Despesas / custos anuais dedutíveis (R$)</label>
+        <div class="money"><span>R$</span><input type="number" id="desp" min="0" step="1000" placeholder="0,00"></div>
+        <p class="help">Mercadorias, insumos, aluguel, serviços etc. — exceto folha. Usado no Lucro Real.</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="credPct">Despesas que geram crédito (%)</label>
+        <input type="number" id="credPct" min="0" max="100" placeholder="60">
+        <p class="help">Parte das despesas que dá crédito de PIS/COFINS (Lucro Real) e de IBS/CBS (pós-reforma).</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="b2b">Vendas para empresas — B2B (%)</label>
+        <input type="number" id="b2b" min="0" max="100" placeholder="Ex: 100">
+        <p class="help">Quanto do faturamento vai para clientes PJ. Em branco = 100%. Pesa na decisão pelo Simples Híbrido.</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="fornReg">Compras de fornecedores do regime regular (%)</label>
+        <input type="number" id="fornReg" min="0" max="100" placeholder="70">
+        <p class="help">Fornecedores no Presumido/Real destacam IBS/CBS integral; do Simples o crédito é limitado.</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="mono">Incentivo fiscal — PIS/COFINS</label>
+        <select id="mono">
+          <option value="0">PIS/COFINS — alíquota normal</option>
+          <option value="25">Monofásico / alíquota zero em 25% da receita</option>
+          <option value="50">Monofásico / alíquota zero em 50% da receita</option>
+          <option value="75">Monofásico / alíquota zero em 75% da receita</option>
+          <option value="100">Monofásico / alíquota zero em 100% da receita</option>
+        </select>
+        <p class="help">Zera PIS/COFINS na parcela indicada (sistema atual). Some com a CBS a partir de 2027.</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="red">Redução de alíquota IBS/CBS</label>
+        <select id="red">
+          <option value="0">Sem redução — alíquota padrão</option>
+          <option value="30">Redução de 30% — profissões intelectuais regulamentadas</option>
+          <option value="60">Redução de 60% — saúde, educação, alimentos, etc.</option>
+          <option value="100">Redução de 100% — alíquota zero (cesta básica, etc.)</option>
+        </select>
+        <p class="help">Aplica a redução às alíquotas de IBS e CBS na Reforma Tributária (2027+).</p>
+      </div>
+      <div class="field">
+        <label class="lbl" for="anexoFR">Enquadramento no Simples Nacional (serviços)</label>
+        <select id="anexoFR">
+          <option value="auto">Automático pelo Fator R (≥ 28% → Anexo III; abaixo → Anexo V)</option>
+          <option value="III">Anexo III direto</option>
+          <option value="V">Anexo V</option>
+        </select>
+        <p class="help">Vale para Tecnologia e Saúde. Use "Anexo III direto" se a atividade é do Anexo III independentemente da folha.</p>
+      </div>
+      <div class="field" id="hospField" hidden>
+        <label class="lbl">Saúde — Lucro Presumido</label>
+        <label class="check"><input type="checkbox" id="hosp"> Serviços hospitalares / equiparados (presunção de 8% IRPJ e 12% CSLL)</label>
+      </div>
+    </div>
+
+    <details class="adv">
+      <summary>⚙️ Parâmetros avançados</summary>
+      <div class="grid g3">
+        <div class="field"><label class="lbl" for="cbsRef">Alíquota de referência CBS (%)</label><input type="number" id="cbsRef" step="0.1" placeholder="8.8"></div>
+        <div class="field"><label class="lbl" for="ibsRef">Alíquota de referência IBS (%)</label><input type="number" id="ibsRef" step="0.1" placeholder="17.7"></div>
+        <div class="field"><label class="lbl" for="rat">RAT/SAT ajustado (%)</label><input type="number" id="rat" step="0.5" placeholder="2"></div>
+        <div class="field"><label class="lbl" for="terc">Terceiros — Sistema S, salário-educação (%)</label><input type="number" id="terc" step="0.1" placeholder="5.8"></div>
+        <div class="field"><label class="lbl" for="smin">Salário mínimo 2026 (R$)</label><input type="number" id="smin" placeholder="1621"></div>
+        <div class="field"><label class="lbl">Lucro Presumido</label><label class="check"><input type="checkbox" id="lc224" checked> Aplicar LC 224/2025 (+10% na presunção sobre receita acima de R$ 5 milhões)</label></div>
+      </div>
+    </details>
+
+    <button class="btn" id="simular" type="button">▶ Simular planejamento</button>
+    <div class="err" id="err" role="alert"></div>
+  </section>
+
+  <div id="results" hidden></div>
+</main>
+
+<footer>
+  Estimativas para fins de planejamento. Não substituem a análise de um contador — confirme alíquotas estaduais/municipais, benefícios e enquadramentos específicos.
+  <div class="np">Base legal: LC 123/2006 (Simples), Lei 9.430/96 e RIR/2018 (Presumido/Real), LC 214/2025 e EC 132/2023 (Reforma Tributária), LC 224/2025.</div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+
+/* ======================= Dados de referência ======================= */
+const SETORES = {
+  comercio:   {nome:'Comércio',                 ic:'🛒', anexo:'I',  pIR:.08, pCS:.12, local:'ICMS', aliq:2, mei:true},
+  servicos:   {nome:'Serviços',                 ic:'💼', anexo:'III',pIR:.32, pCS:.32, local:'ISS',  aliq:5, mei:true},
+  industria:  {nome:'Indústria',                ic:'🏭', anexo:'II', pIR:.08, pCS:.12, local:'ICMS', aliq:4, mei:true},
+  tecnologia: {nome:'Tecnologia',               ic:'💻', anexo:'FR', pIR:.32, pCS:.32, local:'ISS',  aliq:2, mei:false},
+  saude:      {nome:'Saúde',                    ic:'🏥', anexo:'FR', pIR:.32, pCS:.32, local:'ISS',  aliq:3, mei:false},
+  construcao: {nome:'Construção',               ic:'🏗️', anexo:'IV', pIR:.08, pCS:.12, local:'ISS',  aliq:3, mei:false},
+  locacao:    {nome:'Locação de bens próprios', ic:'🏢', anexo:'III',pIR:.32, pCS:.32, local:'—',    aliq:0, mei:false},
+};
+
+// Simples Nacional — LC 123/2006 (redação LC 155/2016): [limite RBT12, alíquota nominal, parcela a deduzir]
+const LIM = [180000, 360000, 720000, 1800000, 3600000, 4800000];
+const SN = {
+  I:  {nome:'Anexo I — Comércio', al:[4,7.3,9.5,10.7,14.3,19], pd:[0,5940,13860,22500,87300,378000],
+       // irpj, csll, cofins, pis, cpp, ipi, local(ICMS)
+       part:[[5.5,3.5,12.74,2.76,41.5,0,34],[5.5,3.5,12.74,2.76,41.5,0,34],[5.5,3.5,12.74,2.76,42,0,33.5],[5.5,3.5,12.74,2.76,42,0,33.5],[5.5,3.5,12.74,2.76,42,0,33.5],[13.5,10,28.27,6.13,42.1,0,0]]},
+  II: {nome:'Anexo II — Indústria', al:[4.5,7.8,10,11.2,14.7,30], pd:[0,5940,13860,22500,85500,720000],
+       part:[[5.5,3.5,11.51,2.49,37.5,7.5,32],[5.5,3.5,11.51,2.49,37.5,7.5,32],[5.5,3.5,11.51,2.49,37.5,7.5,32],[5.5,3.5,11.51,2.49,37.5,7.5,32],[5.5,3.5,11.51,2.49,37.5,7.5,32],[8.5,7.5,20.96,4.54,23.5,35,0]]},
+  III:{nome:'Anexo III — Serviços', al:[6,11.2,13.5,16,21,33], pd:[0,9360,17640,35640,125640,648000],
+       part:[[4,3.5,12.82,2.78,43.4,0,33.5],[4,3.5,14.05,3.05,43.4,0,32],[4,3.5,13.64,2.96,43.4,0,32.5],[4,3.5,13.64,2.96,43.4,0,32.5],[4,3.5,12.82,2.78,43.4,0,33.5],[35,15,16.03,3.47,30.5,0,0]]},
+  IV: {nome:'Anexo IV — Construção/limpeza/advocacia', al:[4.5,9,10.2,14,22,33], pd:[0,8100,12420,39780,183780,828000],
+       part:[[18.8,15.2,17.67,3.83,0,0,44.5],[19.8,15.2,20.55,4.45,0,0,40],[20.8,15.2,19.73,4.27,0,0,40],[17.8,19.2,18.9,4.1,0,0,40],[18.8,19.2,18.08,3.92,0,0,40],[53.5,21.5,20.55,4.45,0,0,0]]},
+  V:  {nome:'Anexo V — Serviços intelectuais', al:[15.5,18,19.5,20.5,23,30.5], pd:[0,4500,9900,17100,62100,540000],
+       part:[[25,15,14.1,3.05,28.85,0,14],[23,15,14.1,3.05,27.85,0,17],[24,15,14.92,3.23,23.85,0,19],[21,15,15.74,3.41,23.85,0,21],[23,12.5,14.1,3.05,23.85,0,23.5],[35,15.5,16.44,3.56,29.5,0,0]]},
+};
+const COMP = ['IRPJ','CSLL','COFINS','PIS','CPP (INSS)','IPI','ICMS/ISS'];
+
+// Transição da Reforma (EC 132/2023 e LC 214/2025)
+const ANOS = [2026,2027,2028,2029,2030,2031,2032,2033];
+function fase(ano, cbsRef, ibsRef){
+  // fIBS: fração do IBS cheio em vigor; o ICMS/ISS fica com (1 - fIBS)
+  if (ano <= 2026) return {pisCofins:true, cbs:0, ibs:0, fIBS:0, teste:true};
+  if (ano <= 2028) return {pisCofins:false, cbs:Math.max(0,cbsRef-0.1), ibs:0.1, fIBS:0, teste:false};
+  const f = {2029:.1, 2030:.2, 2031:.3, 2032:.4}[ano] ?? 1;
+  return {pisCofins:false, cbs:cbsRef, ibs:ibsRef*f, fIBS:f, teste:false};
+}
+const FASE_TXT = {
+  2026:'Ano-teste: CBS 0,9% + IBS 0,1% destacados e compensados',
+  2027:'CBS plena; PIS/COFINS extintos; IPI zerado*',
+  2028:'CBS plena; IBS 0,1%',
+  2029:'ICMS/ISS 90% · IBS 10%',
+  2030:'ICMS/ISS 80% · IBS 20%',
+  2031:'ICMS/ISS 70% · IBS 30%',
+  2032:'ICMS/ISS 60% · IBS 40%',
+  2033:'Sistema pleno: ICMS e ISS extintos'
+};
+
+/* ======================= Utilidades ======================= */
+const $ = s => document.querySelector(s);
+const brl = v => (v<0?'-':'') + 'R$ ' + Math.round(Math.abs(v)).toLocaleString('pt-BR');
+const brl2 = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pct = (v,d=1) => (v*100).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%';
+const num = (id, def) => { const v = parseFloat($(id).value); return isFinite(v) ? v : def; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+/* ======================= Estado do formulário ======================= */
+const state = {mode:'unica', setores:['comercio'], mix:{}, ests:[]};
+const STORE = 'simtrib.v1';
+
+function renderChips(){
+  $('#chips').innerHTML = Object.entries(SETORES).map(([k,s]) =>
+    `<button type="button" class="chip" data-k="${k}" aria-pressed="${state.setores.includes(k)}"><span class="ic">${s.ic}</span>${s.nome}</button>`).join('');
+  renderMix();
+}
+function renderMix(){
+  const sel = state.setores;
+  const eq = Math.round(100/sel.length);
+  $('#mix').innerHTML = sel.map((k,i) => {
+    const m = state.mix[k] || {};
+    const s = SETORES[k];
+    return `<div class="mixrow">
+      <div class="mixname">${s.ic} ${s.nome}</div>
+      <div>${sel.length>1?`<small>% do faturamento</small><input type="number" min="0" max="100" data-mix="${k}" data-f="pct" value="${m.pct ?? (i===sel.length-1?100-eq*(sel.length-1):eq)}">`:'<small>% do faturamento</small><input type="number" value="100" disabled>'}</div>
+      <div><small>Alíquota ${s.local==='—'?'ISS/ICMS':s.local} (%)</small><input type="number" step="0.1" min="0" data-mix="${k}" data-f="aliq" placeholder="Padrão ${String(s.aliq).replace('.',',')}%" value="${m.aliq ?? ''}"></div>
+    </div>`;
+  }).join('') + `<p class="help">Alíquota efetiva de ICMS/ISS sobre o faturamento (já líquida de créditos de ICMS). Deixe em branco para usar o padrão do setor.</p>`;
+  $('#hospField').hidden = !activeSectors().includes('saude');
+}
+function activeSectors(){
+  return state.mode==='unica' ? state.setores : state.ests.map(e=>e.setor);
+}
+function renderEsts(){
+  if (!state.ests.length) state.ests = [{nome:'Matriz',setor:'comercio',fat:'',aliq:''},{nome:'Filial 1',setor:'servicos',fat:'',aliq:''}];
+  $('#ests').innerHTML = state.ests.map((e,i)=>`<div class="estrow">
+    <div><small>Unidade</small><input type="text" data-est="${i}" data-f="nome" value="${esc(e.nome)}"></div>
+    <div><small>Setor</small><select data-est="${i}" data-f="setor">${Object.entries(SETORES).map(([k,s])=>`<option value="${k}" ${k===e.setor?'selected':''}>${s.nome}</option>`).join('')}</select></div>
+    <div><small>Faturamento anual (R$)</small><input type="number" min="0" step="1000" data-est="${i}" data-f="fat" value="${e.fat}"></div>
+    <div><small>ICMS/ISS (%)</small><input type="number" step="0.1" min="0" data-est="${i}" data-f="aliq" placeholder="${SETORES[e.setor].aliq}" value="${e.aliq}"></div>
+    <button type="button" class="rm" data-rm="${i}" aria-label="Remover unidade" ${state.ests.length<2?'disabled':''}>✕</button>
+  </div>`).join('');
+  $('#hospField').hidden = !activeSectors().includes('saude');
+}
+function setMode(m){
+  state.mode = m;
+  $('#modeUnica').setAttribute('aria-pressed', m==='unica');
+  $('#modeMulti').setAttribute('aria-pressed', m==='multi');
+  $('#blocoUnica').hidden = m!=='unica';
+  $('#blocoMulti').hidden = m!=='multi';
+  if (m==='multi') renderEsts(); else renderMix();
+}
+
+$('#chips').addEventListener('click', ev => {
+  const b = ev.target.closest('.chip'); if (!b) return;
+  const k = b.dataset.k, i = state.setores.indexOf(k);
+  if (i>=0) { if (state.setores.length>1) state.setores.splice(i,1); }
+  else state.setores.push(k);
+  Object.keys(state.mix).forEach(x => { if (state.mix[x]) delete state.mix[x].pct; });
+  renderChips();
+});
+$('#mix').addEventListener('input', ev => {
+  const t = ev.target; if (!t.dataset.mix) return;
+  (state.mix[t.dataset.mix] ||= {})[t.dataset.f] = t.value;
+});
+$('#ests').addEventListener('input', ev => {
+  const t = ev.target; if (!t.dataset.est) return;
+  state.ests[+t.dataset.est][t.dataset.f] = t.value;
+  if (t.dataset.f==='setor') renderEsts();
+});
+$('#ests').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-rm]'); if (!b) return;
+  state.ests.splice(+b.dataset.rm,1); renderEsts();
+});
+$('#addEst').addEventListener('click', () => {
+  state.ests.push({nome:'Filial '+state.ests.length, setor:'comercio', fat:'', aliq:''}); renderEsts();
+});
+$('#modeUnica').addEventListener('click', ()=>setMode('unica'));
+$('#modeMulti').addEventListener('click', ()=>setMode('multi'));
+
+/* ======================= Leitura das entradas ======================= */
+const FIELDS = ['nome','fat','sal','pro','desp','credPct','b2b','fornReg','mono','red','anexoFR','cbsRef','ibsRef','rat','terc','smin'];
+function readInputs(){
+  let atividades = [];
+  if (state.mode==='unica'){
+    const R = num('#fat',0);
+    const sel = state.setores;
+    let pcts = sel.map((k,i) => sel.length===1 ? 100 : parseFloat(state.mix[k]?.pct ?? (i===sel.length-1 ? 100-Math.round(100/sel.length)*(sel.length-1) : Math.round(100/sel.length))) || 0);
+    const tot = sum(pcts) || 1;
+    atividades = sel.map((k,i) => ({setor:k, nome:SETORES[k].nome, receita:R*pcts[i]/tot, aliq:(state.mix[k]?.aliq!==undefined && state.mix[k].aliq!=='' ? parseFloat(state.mix[k].aliq) : SETORES[k].aliq)/100}));
+  } else {
+    atividades = state.ests.map(e => ({setor:e.setor, nome:(e.nome||SETORES[e.setor].nome)+' · '+SETORES[e.setor].nome, receita:parseFloat(e.fat)||0, aliq:(e.aliq!==''&&e.aliq!==undefined?parseFloat(e.aliq):SETORES[e.setor].aliq)/100}));
+  }
+  return {
+    nome: $('#nome').value.trim() || 'Empresa',
+    atividades: atividades.filter(a=>a.receita>0),
+    R: sum(atividades.map(a=>a.receita)),
+    salMes: num('#sal',0), proMes: num('#pro',0),
+    desp: num('#desp',0),
+    credPct: Math.min(100,Math.max(0,num('#credPct',60)))/100,
+    b2b: Math.min(100,Math.max(0,num('#b2b',100)))/100,
+    fornReg: Math.min(100,Math.max(0,num('#fornReg',70)))/100,
+    mono: num('#mono',0)/100,
+    red: num('#red',0)/100,
+    anexoFR: $('#anexoFR').value,
+    hosp: $('#hosp').checked,
+    cbsRef: num('#cbsRef',8.8), ibsRef: num('#ibsRef',17.7),
+    rat: num('#rat',2)/100, terc: num('#terc',5.8)/100,
+    smin: num('#smin',1621),
+    lc224: $('#lc224').checked,
+  };
+}
+
+/* ======================= Motor de cálculo ======================= */
+function folha(inp){
+  // 13 salários + 1/3 de férias ≈ 13,33 salários/ano; pró-labore 12x
+  const sal = inp.salMes * 13.333;
+  const pro = inp.proMes * 12;
+  const fgts = sal * 0.08;
+  return {sal, pro, fgts, total: sal+pro};
+}
+function encargosINSS(inp, f){
+  const patr = f.sal * (0.20 + inp.rat + inp.terc);
+  const proINSS = f.pro * 0.20;
+  return {patr, proINSS, total: patr+proINSS};
+}
+function faixaIdx(rbt){ for (let i=0;i<LIM.length;i++) if (rbt<=LIM[i]) return i; return -1; }
+
+function anexoDe(setor, fatorR, inp){
+  const a = SETORES[setor].anexo;
+  if (a!=='FR') return a;
+  if (inp.anexoFR==='III') return 'III';
+  if (inp.anexoFR==='V') return 'V';
+  return fatorR >= 0.28 ? 'III' : 'V';
+}
+
+/* IBS/CBS no regime regular (débito – crédito) para um ano */
+function ivaRegular(inp, ano){
+  const fz = fase(ano, inp.cbsRef, inp.ibsRef);
+  const comprasCred = inp.desp * inp.credPct;
+  // crédito integral de fornecedores do regime regular; do Simples, ~ a parcela de CBS/IBS embutida no DAS (≈ 4% estimado)
+  const creditoBase = comprasCred * inp.fornReg;
+  const creditoSimples = comprasCred * (1-inp.fornReg);
+  const red = 1 - inp.red;
+  const dCBS = inp.R * fz.cbs/100 * red, dIBS = inp.R * fz.ibs/100 * red;
+  const cCBS = creditoBase * fz.cbs/100 + creditoSimples * Math.min(fz.cbs/100, 0.015);
+  const cIBS = creditoBase * fz.ibs/100 + creditoSimples * Math.min(fz.ibs/100, 0.025*fz.fIBS);
+  return {fz, dCBS, dIBS, cCBS, cIBS, CBS:Math.max(0,dCBS-cCBS), IBS:Math.max(0,dIBS-cIBS),
+          saldoCredor: Math.max(0,cCBS-dCBS)+Math.max(0,cIBS-dIBS), comprasCred, creditoBase};
+}
+
+function calcMEI(inp){
+  const ok = inp.R <= 81000 && inp.atividades.every(a=>SETORES[a.setor].mei) && inp.salMes <= inp.smin*1.0001*1.5;
+  const inss = inp.smin*0.05;
+  const temCom = inp.atividades.some(a=>SETORES[a.setor].local==='ICMS');
+  const temSrv = inp.atividades.some(a=>SETORES[a.setor].local==='ISS');
+  const mes = inss + (temCom?1:0) + (temSrv?5:0);
+  const cppEmp = inp.salMes>0 ? inp.salMes*13.333*0.03 : 0; // CPP de 3% sobre o empregado do MEI
+  const total = mes*12 + cppEmp;
+  const motivos = [];
+  if (inp.R > 81000) motivos.push('faturamento acima de R$ 81.000/ano');
+  if (!inp.atividades.every(a=>SETORES[a.setor].mei)) motivos.push('atividade não permitida ao MEI');
+  if (inp.salMes > inp.smin*1.5) motivos.push('MEI só pode ter 1 empregado (salário mínimo ou piso)');
+  return {id:'mei', nome:'MEI', elegivel:ok, motivo:motivos.join('; '), total,
+    itens:[['DAS-MEI (12 meses)', mes*12], ...(cppEmp?[['CPP 3% do empregado', cppEmp]]:[])],
+    mem:[['INSS (5% do salário mínimo)', brl2(inp.smin), '5%', inss*12],
+         ...(temCom?[['ICMS fixo', '', 'R$ 1/mês', 12]]:[]),
+         ...(temSrv?[['ISS fixo', '', 'R$ 5/mês', 60]]:[]),
+         ...(cppEmp?[['CPP do empregado', brl2(inp.salMes*13.333), '3%', cppEmp]]:[])]};
+}
+
+function calcSimples(inp){
+  const f = folha(inp);
+  const folha12 = f.total + f.fgts;
+  const fatorR = inp.R>0 ? folha12/inp.R : 0;
+  const idx = faixaIdx(inp.R);
+  const res = {id:'simples', nome:'Simples Nacional', elegivel: idx>=0 && inp.R>0, motivo: idx<0 ? 'faturamento acima de R$ 4,8 milhões' : '', fatorR, faixa:idx};
+  if (!res.elegivel){ res.total = Infinity; res.itens=[]; res.mem=[]; return res; }
+  const sublimite = inp.R > 3600000;
+  const comps = [0,0,0,0,0,0,0];
+  let das = 0, localFora = 0, cppFora = 0;
+  const mem = [];
+  const anexos = {};
+  mem.push(['Receita bruta 12 meses (RBT12)', brl(inp.R), '', null]);
+  mem.push(['Folha 12 meses p/ Fator R (salários + 13º/férias + pró-labore + FGTS)', brl(folha12), pct(fatorR), null]);
+  let receitaIV = 0;
+  for (const a of inp.atividades){
+    const ax = anexoDe(a.setor, fatorR, inp);
+    const t = SN[ax];
+    const nom = t.al[idx]/100;
+    const ef = inp.R>0 ? Math.max(0,(inp.R*nom - t.pd[idx])/inp.R) : nom;
+    const dasA = a.receita * ef;
+    const p = t.part[idx];
+    let dasLiq = 0;
+    p.forEach((sh,j) => {
+      let v = dasA*sh/100;
+      if ((j===2||j===3) && inp.mono>0) v *= (1-inp.mono); // monofásico: exclui PIS/COFINS
+      comps[j] += v; dasLiq += v;
+    });
+    das += dasLiq;
+    if (sublimite || idx===5) localFora += a.receita * a.aliq;
+    if (ax==='IV') receitaIV += a.receita;
+    anexos[ax] = ef;
+    mem.push([`${a.nome} → ${t.nome}`, brl(a.receita), `Alíq. nominal ${pct(nom,1)} − PD ${brl(t.pd[idx])} → efetiva ${pct(ef,2)}`, dasLiq]);
+  }
+  if (receitaIV>0){
+    const enc = encargosINSS(inp, f);
+    const fr = receitaIV/inp.R;
+    cppFora = (f.sal*(0.20+inp.rat) + f.pro*0.20) * fr;
+    mem.push(['Anexo IV: CPP fora do DAS (20% + RAT sobre folha e 20% sobre pró-labore)', brl(f.total*fr), pct(0.20+inp.rat), cppFora]);
+  }
+  if (localFora>0) mem.push(['ICMS/ISS fora do DAS (receita acima do sublimite de R$ 3,6 mi)', brl(inp.R), 'alíquota informada', localFora]);
+  res.das = das; res.comps = comps; res.localFora = localFora; res.cppFora = cppFora; res.anexos = anexos;
+  res.pisCofinsDAS = comps[2]+comps[3];
+  res.localDAS = comps[6];
+  res.total = das + localFora + cppFora;
+  res.aliqEf = das/inp.R;
+  res.itens = [[`DAS — ${Object.keys(anexos).map(x=>'Anexo '+x).join(' + ')} (efetiva ${pct(das/inp.R)})`, das]];
+  COMP.forEach((c,j)=>{ if (comps[j]>0.5) res.itens.push(['  · '+c+' (no DAS)', comps[j], true]); });
+  if (localFora) res.itens.push(['ICMS/ISS fora do DAS', localFora]);
+  if (cppFora) res.itens.push(['CPP fora do DAS (Anexo IV)', cppFora]);
+  res.mem = mem.concat([['DAS anual', '', '', das],['Total de tributos', '', '', res.total]]);
+  return res;
+}
+
+function presuncao(inp){
+  let bIR = 0, bCS = 0;
+  const mem = [];
+  for (const a of inp.atividades){
+    let pIR = SETORES[a.setor].pIR, pCS = SETORES[a.setor].pCS;
+    if (a.setor==='saude' && inp.hosp){ pIR = .08; pCS = .12; }
+    bIR += a.receita*pIR; bCS += a.receita*pCS;
+    mem.push([`Presunção — ${a.nome}`, brl(a.receita), `IRPJ ${pct(pIR,0)} · CSLL ${pct(pCS,0)}`, null]);
+  }
+  let acr = 0;
+  if (inp.lc224 && inp.R > 5000000){
+    const fr = (inp.R-5000000)/inp.R;
+    acr = fr*0.10;
+    mem.push(['LC 224/2025: +10% na presunção da receita acima de R$ 5 mi', brl(inp.R-5000000), `+${pct(acr,2)} na base`, null]);
+    bIR *= 1+acr; bCS *= 1+acr;
+  }
+  return {bIR, bCS, mem};
+}
+
+function calcPresumido(inp, ano=2026){
+  const res = {id:'presumido', nome:'Lucro Presumido', elegivel: inp.R>0 && inp.R <= 78000000, motivo: inp.R>78000000?'faturamento acima de R$ 78 milhões':''};
+  if (!res.elegivel){ res.total=Infinity; res.itens=[]; res.mem=[]; return res; }
+  const fz = fase(ano, inp.cbsRef, inp.ibsRef);
+  const p = presuncao(inp);
+  const irpj = p.bIR*0.15 + Math.max(0,p.bIR-240000)*0.10;
+  const csll = p.bCS*0.09;
+  const baseCum = inp.R*(1-inp.mono);
+  const pis = fz.pisCofins ? baseCum*0.0065 : 0;
+  const cofins = fz.pisCofins ? baseCum*0.03 : 0;
+  const local = sum(inp.atividades.map(a=>a.receita*a.aliq)) * (1-fz.fIBS);
+  const iva = ivaRegular(inp, ano);
+  const f = folha(inp), enc = encargosINSS(inp, f);
+  res.irpj=irpj; res.csll=csll; res.pis=pis; res.cofins=cofins; res.local=local; res.cbs=iva.CBS; res.ibs=iva.IBS; res.inss=enc.total; res.iva=iva;
+  res.total = irpj+csll+pis+cofins+local+iva.CBS+iva.IBS+enc.total;
+  res.itens = [['IRPJ', irpj],['CSLL', csll]];
+  if (fz.pisCofins) res.itens.push(['PIS (0,65% cumulativo)', pis],['COFINS (3% cumulativo)', cofins]);
+  else res.itens.push(['CBS (não cumulativa)', iva.CBS],['IBS (não cumulativo)', iva.IBS]);
+  res.itens.push(['ICMS/ISS', local],['INSS patronal + pró-labore', enc.total]);
+  res.mem = [...p.mem,
+    ['Base presumida IRPJ', brl(p.bIR), '', null],
+    ['IRPJ 15%', brl(p.bIR), '15%', p.bIR*0.15],
+    ['Adicional IRPJ 10% (base acima de R$ 240 mil/ano)', brl(Math.max(0,p.bIR-240000)), '10%', Math.max(0,p.bIR-240000)*0.10],
+    ['CSLL 9% sobre base presumida', brl(p.bCS), '9%', csll],
+    ...(fz.pisCofins ? [['PIS cumulativo', brl(baseCum), '0,65%', pis],['COFINS cumulativa', brl(baseCum), '3%', cofins]] : []),
+    ...(inp.mono>0 && fz.pisCofins ? [['Receita monofásica/alíquota zero excluída de PIS/COFINS', brl(inp.R*inp.mono), '', null]] : []),
+    ['ICMS/ISS (alíquota efetiva informada)', brl(inp.R), '', local],
+    ['INSS patronal (20% + RAT + terceiros) sobre salários c/ 13º e férias', brl(f.sal), pct(0.20+inp.rat+inp.terc), enc.patr],
+    ['INSS 20% sobre pró-labore', brl(f.pro), '20%', enc.proINSS],
+    ['Total de tributos', '', '', res.total]];
+  return res;
+}
+
+function calcReal(inp, ano=2026){
+  const res = {id:'real', nome:'Lucro Real', elegivel: inp.R>0, motivo:''};
+  if (!res.elegivel){ res.total=Infinity; res.itens=[]; res.mem=[]; return res; }
+  const fz = fase(ano, inp.cbsRef, inp.ibsRef);
+  const comprasCred = inp.desp*inp.credPct;
+  const debPC = inp.R*(1-inp.mono)*0.0925;
+  const credPC = comprasCred*0.0925;
+  const pisCof = fz.pisCofins ? Math.max(0, debPC-credPC) : 0;
+  const local = sum(inp.atividades.map(a=>a.receita*a.aliq)) * (1-fz.fIBS);
+  const iva = ivaRegular(inp, ano);
+  const f = folha(inp), enc = encargosINSS(inp, f);
+  const lucro = inp.R - inp.desp - f.total - f.fgts - enc.total - pisCof - local;
+  const irpj = lucro>0 ? lucro*0.15 + Math.max(0,lucro-240000)*0.10 : 0;
+  const csll = lucro>0 ? lucro*0.09 : 0;
+  res.irpj=irpj; res.csll=csll; res.pisCof=pisCof; res.local=local; res.cbs=iva.CBS; res.ibs=iva.IBS; res.inss=enc.total; res.lucro=lucro; res.iva=iva;
+  res.total = irpj+csll+pisCof+local+iva.CBS+iva.IBS+enc.total;
+  res.itens = [['IRPJ (15% + adicional 10%)', irpj],['CSLL (9%)', csll]];
+  if (fz.pisCofins) res.itens.push(['PIS/COFINS não cumulativo (9,25% − créditos)', pisCof]);
+  else res.itens.push(['CBS (não cumulativa)', iva.CBS],['IBS (não cumulativo)', iva.IBS]);
+  res.itens.push(['ICMS/ISS', local],['INSS patronal + pró-labore', enc.total]);
+  res.mem = [
+    ['Receita bruta', brl(inp.R), '', null],
+    ['(−) Despesas/custos dedutíveis', brl(inp.desp), '', null],
+    ['(−) Folha, FGTS e INSS', brl(f.total+f.fgts+enc.total), '', null],
+    ['(−) Tributos sobre receita', brl(pisCof+local), '', null],
+    ['= Lucro real (LALUR, sem adições/exclusões)', brl(lucro), lucro<=0?'prejuízo fiscal':'', null],
+    ['IRPJ 15%', brl(Math.max(0,lucro)), '15%', Math.max(0,lucro)*0.15],
+    ['Adicional IRPJ 10% (lucro acima de R$ 240 mil)', brl(Math.max(0,lucro-240000)), '10%', Math.max(0,lucro-240000)*0.10],
+    ['CSLL 9%', brl(Math.max(0,lucro)), '9%', csll],
+    ...(fz.pisCofins ? [['PIS/COFINS — débito sobre receita', brl(inp.R*(1-inp.mono)), '9,25%', debPC],['PIS/COFINS — crédito sobre compras', brl(comprasCred), '9,25%', -credPC]] : []),
+    ['ICMS/ISS (alíquota efetiva informada)', brl(inp.R), '', local],
+    ['INSS patronal + pró-labore', brl(f.total), '', enc.total],
+    ['Total de tributos', '', '', res.total]];
+  return res;
+}
+
+/* Projeção por ano (2026–2033) para cada regime, incluindo crédito gerado ao cliente B2B */
+function projetar(inp, s){
+  const linhas = [];
+  for (const ano of ANOS){
+    const fz = fase(ano, inp.cbsRef, inp.ibsRef);
+    const row = {ano, fz};
+    const ivaReg = ivaRegular(inp, ano);
+    const red = 1-inp.red;
+    const creditoCheio = inp.R*(fz.cbs+fz.ibs)/100*red;
+    if (s.elegivel){
+      // Simples: alíquotas do DAS mantidas; parcela de PIS/COFINS vira CBS e a de ICMS/ISS vira IBS (gradual)
+      let localFora = s.localFora*(1-fz.fIBS) + (s.localFora>0 ? ivaReg.IBS*(fz.fIBS>0?1:0) : 0);
+      row.simples = s.das + s.cppFora + localFora;
+      row.credSimples = fz.teste ? 0 : s.pisCofinsDAS + s.localDAS*fz.fIBS + (s.localFora>0?ivaReg.dIBS:0);
+      // Simples Híbrido (opção de recolher IBS/CBS pelo regime regular — LC 214/2025, a partir de 2027)
+      if (!fz.teste){
+        const dasH = s.das - s.pisCofinsDAS - s.localDAS*fz.fIBS;
+        row.hibrido = dasH + s.cppFora + s.localFora*(1-fz.fIBS) + ivaReg.CBS + ivaReg.IBS;
+        row.credHibrido = creditoCheio;
+        row.hibDet = {dasH, cbs:ivaReg.CBS, ibs:ivaReg.IBS, localFora:s.localFora*(1-fz.fIBS)};
+      } else { row.hibrido = null; row.credHibrido = 0; }
+    }
+    const pr = calcPresumido(inp, ano), re = calcReal(inp, ano);
+    row.presumido = pr.elegivel ? pr.total : null; row.presDet = pr;
+    row.real = re.total; row.realDet = re;
+    row.credRegular = fz.teste ? 0 : creditoCheio;
+    linhas.push(row);
+  }
+  return linhas;
+}
+
+/* ======================= Renderização dos resultados ======================= */
+const SERIES = [
+  {k:'simples',  nome:'Simples Nacional', c:'--s1'},
+  {k:'hibrido',  nome:'Simples Híbrido',  c:'--s2'},
+  {k:'presumido',nome:'Lucro Presumido',  c:'--s3'},
+  {k:'real',     nome:'Lucro Real',       c:'--s4'},
+];
+
+function regCard(r, R, maxT, tag){
+  const ef = isFinite(r.total) && R>0 ? r.total/R : 0;
+  const w = isFinite(r.total) && maxT>0 ? Math.max(2, r.total/maxT*100) : 0;
+  return `<div class="reg ${tag==='best'?'best':''} ${!r.elegivel?'off':''}">
+    ${tag==='best'?'<span class="tag best">Melhor opção</span>':tag==='worst'?'<span class="tag worst">Maior carga</span>':''}
+    ${!r.elegivel?'<span class="tag na">Não elegível</span>':''}
+    <h3>${r.nome}</h3>
+    ${r.elegivel ? `
+      <div class="val">${brl(r.total)}</div><div class="lab">impostos anuais estimados${r.sub?` · ${r.sub}`:''}</div>
+      <div class="meter" title="Carga tributária sobre o faturamento"><div class="track"><div class="fill" style="width:${w}%"></div></div><b>${pct(ef)}</b></div>
+      <ul class="brk">${r.itens.map(([l,v,sub])=>`<li style="${sub?'font-size:12px;opacity:.8':''}"><span>${esc(l)}</span><span>${brl(v)}</span></li>`).join('')}</ul>
+      ${r.why?`<div class="why">${r.why}</div>`:''}`
+    : `<p class="why">Não pode ser utilizado: ${esc(r.motivo)}.</p>`}
+  </div>`;
+}
+
+function memTable(rows){
+  return `<div class="tscroll"><table><thead><tr><th>Etapa</th><th>Base</th><th>Alíquota / regra</th><th class="n">Valor</th></tr></thead><tbody>${
+    rows.map(([a,b,c,d])=>`<tr><td>${esc(a)}</td><td class="n">${esc(b||'')}</td><td class="f">${esc(c||'')}</td><td class="n">${d===null||d===undefined?'':brl(d)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function lineChart(proj){
+  const W=760,H=300,ml=74,mr=124,mt=14,mb=34;
+  const series = SERIES.filter(s=>proj.some(r=>r[s.k]!=null));
+  const vals = proj.flatMap(r=>series.map(s=>r[s.k]).filter(v=>v!=null));
+  const max = Math.max(...vals)*1.08 || 1, min = 0;
+  const x = i => ml + i*(W-ml-mr)/(proj.length-1);
+  const y = v => mt + (H-mt-mb)*(1-(v-min)/(max-min));
+  const ticks = 4; let grid='';
+  for (let i=0;i<=ticks;i++){ const v=max*i/ticks; grid += `<line x1="${ml}" x2="${W-mr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${ml-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--ink-3)">${v>=1e6?(v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mi':Math.round(v/1e3)+' mil'}</text>`; }
+  const xl = proj.map((r,i)=>`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="11" fill="var(--ink-3)">${r.ano}</text>`).join('');
+  // rótulos diretos no fim, separados para não colidir
+  const ends = series.map(s=>{ const last=[...proj].reverse().find(r=>r[s.k]!=null); return {s, v:last[s.k], yy:y(last[s.k])}; }).sort((a,b)=>a.yy-b.yy);
+  for (let i=1;i<ends.length;i++) if (ends[i].yy-ends[i-1].yy<14) ends[i].yy = ends[i-1].yy+14;
+  const lines = series.map(s=>{
+    const pts = proj.map((r,i)=>r[s.k]!=null?[x(i),y(r[s.k])]:null).filter(Boolean);
+    return `<polyline fill="none" stroke="var(${s.c})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>p.join(',')).join(' ')}"/>` +
+      pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="var(${s.c})" stroke="var(--card)" stroke-width="2"/>`).join('');
+  }).join('');
+  const labels = ends.map(e=>`<text x="${W-mr+10}" y="${e.yy+4}" font-size="11.5" fill="var(--ink-2)">${e.s.nome}</text>`).join('');
+  const hits = proj.map((r,i)=>`<rect x="${x(i)-(W-ml-mr)/(proj.length-1)/2}" y="${mt}" width="${(W-ml-mr)/(proj.length-1)}" height="${H-mt-mb}" fill="transparent" data-i="${i}"/>`).join('');
+  return `<div class="legend">${series.map(s=>`<span><i style="background:var(${s.c})"></i>${s.nome}</span>`).join('')}</div>
+    <div class="chart" id="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Carga tributária anual projetada por regime, 2026 a 2033">${grid}${xl}<line id="xh" x1="0" x2="0" y1="${mt}" y2="${H-mb}" stroke="var(--line-2)" stroke-width="1" visibility="hidden"/>${lines}${labels}${hits}</svg><div class="tip" id="tip" hidden></div></div>`;
+}
+function bindChart(proj){
+  const ch = $('#chart'); if (!ch) return;
+  const svg = ch.querySelector('svg'), tip = $('#tip'), xh = $('#xh');
+  const series = SERIES.filter(s=>proj.some(r=>r[s.k]!=null));
+  svg.addEventListener('mousemove', ev => {
+    const rc = ev.target.closest('rect[data-i]'); if (!rc){ tip.hidden=true; xh.setAttribute('visibility','hidden'); return; }
+    const i = +rc.dataset.i, r = proj[i];
+    const cx = +rc.getAttribute('x') + +rc.getAttribute('width')/2;
+    xh.setAttribute('x1',cx); xh.setAttribute('x2',cx); xh.setAttribute('visibility','visible');
+    const rows = series.filter(s=>r[s.k]!=null).sort((a,b)=>r[a.k]-r[b.k]);
+    tip.innerHTML = `<div class="h">${r.ano} — ${FASE_TXT[r.ano]}</div>` + rows.map(s=>`<div class="r"><span><i style="background:var(${s.c})"></i>${s.nome}</span><b>${brl(r[s.k])}</b></div>`).join('');
+    tip.hidden = false;
+    const box = ch.getBoundingClientRect(), px = cx/760*box.width;
+    tip.style.left = Math.min(Math.max(0, px+12), box.width-tip.offsetWidth) + 'px';
+    tip.style.top = '20px';
+  });
+  svg.addEventListener('mouseleave', ()=>{ tip.hidden=true; xh.setAttribute('visibility','hidden'); });
+}
+
+let ultimo = null;
+function simular(){
+  const inp = readInputs();
+  $('#err').textContent = '';
+  if (!(inp.R>0)){ $('#err').textContent = 'Informe o faturamento anual (ou o faturamento de cada estabelecimento).'; return; }
+  save();
+
+  const mei = calcMEI(inp);
+  const s = calcSimples(inp);
+  const pr = calcPresumido(inp);
+  const re = calcReal(inp);
+  if (s.elegivel) s.sub = Object.entries(s.anexos).map(([a,e])=>`Anexo ${a} ${pct(e)}`).join(' · ');
+  if (re.elegivel && re.lucro<=0) re.why = 'Lucro real negativo: sem IRPJ/CSLL (prejuízo compensável).';
+  if (pr.elegivel) pr.sub = 'PIS/COFINS cumulativos';
+  if (re.elegivel) re.sub = 'PIS/COFINS não cumulativos';
+
+  const regs = [mei, s, pr, re].filter(r => r.id!=='mei' || inp.R<=120000);
+  const eleg = regs.filter(r=>r.elegivel && isFinite(r.total));
+  const best = eleg.reduce((a,b)=>b.total<a.total?b:a);
+  const worst = eleg.reduce((a,b)=>b.total>a.total?b:a);
+  const maxT = worst.total;
+  const proj = projetar(inp, s);
+  const p33 = proj[proj.length-1];
+  ultimo = {inp, regs, best, worst, proj, s, pr, re, mei};
+
+  const setoresTxt = [...new Set(inp.atividades.map(a=>SETORES[a.setor].nome))].join(' + ');
+  const f = folha(inp);
+  const economia = worst.total - best.total;
+
+  // ---- Reforma: decisão Simples x Híbrido em 2033 e em 2027
+  const p27 = proj.find(r=>r.ano===2027);
+  let hibTxt = '';
+  if (s.elegivel){
+    const extra27 = p27.hibrido - p27.simples, ganho27 = (p27.credHibrido - p27.credSimples)*inp.b2b;
+    const extra33 = p33.hibrido - p33.simples, ganho33 = (p33.credHibrido - p33.credSimples)*inp.b2b;
+    const vale = ganho33 > extra33;
+    hibTxt = `<div class="note ${vale?'ok':'info'}"><b class="t">${vale?'✅ Simples Híbrido tende a compensar':'ℹ️ Simples "puro" tende a ser melhor'} para sua carteira (${pct(inp.b2b,0)} B2B)</b>
+      Em 2033, o Híbrido custa <b>${brl(extra33)}</b> ${extra33>=0?'a mais':'a menos'} por ano que o Simples puro, mas transfere <b>${brl(p33.credHibrido - p33.credSimples)}</b> a mais de crédito de IBS/CBS aos clientes — dos quais <b>${brl(ganho33)}</b> são aproveitáveis pelos seus clientes PJ.
+      ${vale?'Seu preço fica mais competitivo para clientes do regime regular: dá para repassar parte desse crédito no preço.':'Como a maioria das vendas não aproveita crédito (consumidor final/PF ou clientes do Simples), recolher IBS/CBS por fora não compensa.'}
+      <br><small>Em 2027 (só CBS): custo extra ${brl(extra27)} × crédito extra útil ${brl(ganho27)}. A opção pelo regime regular de IBS/CBS é feita semestralmente (LC 214/2025, art. 41).</small></div>`;
+  }
+
+  const ivaRows = [];
+  if (s.elegivel){
+    ivaRows.push(['Simples Nacional', 'Dentro do DAS', brl(p33.simples - s.cppFora), brl(p33.credSimples), brl(p33.credSimples*inp.b2b), p33.simples]);
+    ivaRows.push(['Simples Híbrido', `CBS ${brl(p33.hibDet.cbs)} + IBS ${brl(p33.hibDet.ibs)} por fora; DAS ${brl(p33.hibDet.dasH)}`, brl(p33.hibDet.cbs+p33.hibDet.ibs), brl(p33.credHibrido), brl(p33.credHibrido*inp.b2b), p33.hibrido]);
+  }
+  if (p33.presumido!=null) ivaRows.push(['Lucro Presumido', `Débito ${brl(p33.presDet.iva.dCBS+p33.presDet.iva.dIBS)} − crédito ${brl(p33.presDet.iva.cCBS+p33.presDet.iva.cIBS)}`, brl(p33.presDet.cbs+p33.presDet.ibs), brl(p33.credRegular), brl(p33.credRegular*inp.b2b), p33.presumido]);
+  ivaRows.push(['Lucro Real', `Débito ${brl(p33.realDet.iva.dCBS+p33.realDet.iva.dIBS)} − crédito ${brl(p33.realDet.iva.cCBS+p33.realDet.iva.cIBS)}`, brl(p33.realDet.cbs+p33.realDet.ibs), brl(p33.credRegular), brl(p33.credRegular*inp.b2b), p33.real]);
+  const best33 = ivaRows.reduce((a,b)=>b[5]<a[5]?b:a);
+
+  const iva33 = p33.realDet.iva;
+  const aliqIVA = (inp.cbsRef+inp.ibsRef)*(1-inp.red)/100;
+
+  const variacao = (k) => { const a = proj[0][k], b = p33[k]; return a && b!=null ? (b-a)/a : null; };
+
+  const html = `
+  <section class="card hero">
+    <div class="row">
+      <div>
+        <div class="eyebrow">Regime mais econômico em 2026</div>
+        <h2>${best.nome}</h2>
+        <div class="meta">${esc(inp.nome)} · ${esc(setoresTxt)} · faturamento ${brl(inp.R)}/ano${state.mode==='multi'?` · ${inp.atividades.length} estabelecimentos`:''}</div>
+      </div>
+      <div class="save">
+        <div class="big">${brl(economia)}</div>
+        <div class="meta">economia anual vs. pior regime (${worst.nome})<br>Equivale a ${brl(economia/12)}/mês</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📊 Comparativo por regime tributário — 2026</h2>
+    <p class="sub">Sistema atual (PIS/COFINS, ICMS/ISS). Em 2026 a CBS (0,9%) e o IBS (0,1%) são apenas destacados e compensados — sem custo adicional.</p>
+    <div class="regs">${regs.map(r=>regCard(r, inp.R, maxT, r===best?'best':(r===worst&&eleg.length>1?'worst':''))).join('')}</div>
+    ${s.elegivel?`<div class="note info"><b class="t">Fator R: ${pct(s.fatorR)}</b>Folha de 12 meses (salários com 13º e férias, pró-labore e FGTS) ÷ receita. ${inp.atividades.some(a=>SETORES[a.setor].anexo==='FR')?(s.fatorR>=0.28?'Acima de 28%: serviços de tecnologia/saúde tributados no Anexo III.':`Abaixo de 28%: serviços de tecnologia/saúde caem no Anexo V. Para chegar ao Anexo III, a folha anual precisaria ser de ${brl(inp.R*0.28)} (+${brl(Math.max(0,inp.R*0.28-(f.total+f.fgts))/12)}/mês, p. ex. via pró-labore).`):'Não afeta as atividades informadas.'}</div>`:''}
+  </section>
+
+  <section class="card">
+    <h2>🔎 Memória de cálculo</h2>
+    <p class="sub">Detalhamento de como cada valor foi obtido, com as fórmulas do sistema tributário atual (2026). Confira manualmente.</p>
+    ${regs.filter(r=>r.elegivel).map(r=>`<details class="mem" ${r===best?'open':''}><summary>${r.nome}<span>${brl(r.total)} · ${pct(r.total/inp.R)}</span></summary>${memTable(r.mem)}</details>`).join('')}
+    <div class="note warn">Premissas: folha com 13º e 1/3 de férias (≈13,33 salários/ano); FGTS (8%) entra no Fator R, mas não é tributo e não está somado. No Lucro Real não foram consideradas adições/exclusões do LALUR nem compensação de prejuízos. ICMS/ISS usa a alíquota efetiva informada (já líquida de créditos). Lei 15.270/2025: dividendos acima de R$ 50 mil/mês por sócio sofrem retenção de 10% de IR a partir de 2026 — avalie na distribuição de lucros.</div>
+  </section>
+
+  <section class="card">
+    <h2>🧾 Reforma Tributária — IVA Dual (CBS + IBS)</h2>
+    <p class="sub">A CBS (federal) substitui PIS, COFINS e IPI; o IBS (estados e municípios) substitui ICMS e ISS. Ambos são não cumulativos: o imposto pago nas compras vira crédito. Alíquota de referência estimada: CBS ${String(inp.cbsRef).replace('.',',')}% + IBS ${String(inp.ibsRef).replace('.',',')}% = ${String((inp.cbsRef+inp.ibsRef).toFixed(1)).replace('.',',')}%${inp.red>0?` · com redução de ${pct(inp.red,0)}: ${pct(aliqIVA)}`:''}.</p>
+    <div class="timeline">${ANOS.map(a=>`<div><b>${a}</b>${FASE_TXT[a]}</div>`).join('')}</div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">CBS bruta sobre vendas (2033)</div><div class="v">${brl(iva33.dCBS)}</div><div class="d">${pct(inp.cbsRef/100*(1-inp.red))} × faturamento</div></div>
+      <div class="kpi"><div class="l">IBS bruto sobre vendas (2033)</div><div class="v">${brl(iva33.dIBS)}</div><div class="d">${pct(inp.ibsRef/100*(1-inp.red))} × faturamento</div></div>
+      <div class="kpi"><div class="l">Créditos sobre compras (2033)</div><div class="v">${brl(iva33.cCBS+iva33.cIBS)}</div><div class="d">${brl(iva33.comprasCred)} de compras com crédito · ${pct(inp.fornReg,0)} de fornecedores regulares</div></div>
+      <div class="kpi"><div class="l">IBS + CBS a recolher (regime regular)</div><div class="v">${brl(iva33.CBS+iva33.IBS)}</div><div class="d">substitui ${brl((pr.pis||0)+(pr.cofins||0)+(pr.local||0))} de PIS/COFINS + ICMS/ISS do Presumido hoje</div></div>
+    </div>
+    ${iva33.saldoCredor>0?`<div class="note ok">Saldo credor de IBS/CBS estimado em ${brl(iva33.saldoCredor)}/ano — pela LC 214/2025 pode ser ressarcido.</div>`:''}
+
+    <h3 style="font-size:17px;margin:18px 0 6px">Projeção da carga total 2026–2033</h3>
+    <p class="sub">Tributos totais por ano em cada regime (IRPJ, CSLL, INSS, tributos sobre consumo). Atenção: IBS e CBS são cobrados <b>“por fora”</b> — somados ao preço e repassados ao cliente — enquanto PIS/COFINS/ICMS/ISS hoje estão “por dentro”. O faturamento informado é tratado como valor da operação sem IBS/CBS. Passe o mouse para ver os valores.</p>
+    ${lineChart(proj)}
+    <div class="tscroll"><table>
+      <thead><tr><th>Ano</th><th>Fase</th>${SERIES.map(se=>`<th class="n">${se.nome}</th>`).join('')}</tr></thead>
+      <tbody>${proj.map(r=>`<tr><td><b>${r.ano}</b></td><td class="f">${FASE_TXT[r.ano]}</td>${SERIES.map(se=>`<td class="n">${r[se.k]==null?'—':brl(r[se.k])}</td>`).join('')}</tr>`).join('')}
+      <tr><td colspan="2"><b>Variação 2026 → 2033</b></td>${SERIES.map(se=>{const v=variacao(se.k==='hibrido'?'simples':se.k); const b=se.k==='hibrido'&&s.elegivel?(p33.hibrido-proj[0].simples)/proj[0].simples:v; return `<td class="n">${b==null||!isFinite(b)?'—':(b>0?'+':'')+pct(b)}</td>`;}).join('')}</tr></tbody>
+    </table></div>
+
+    <h3 style="font-size:17px;margin:22px 0 6px">IVA no sistema pleno (2033) e crédito gerado aos clientes</h3>
+    <div class="tscroll"><table>
+      <thead><tr><th>Regime</th><th>Como recolhe IBS/CBS</th><th class="n">IBS/CBS pagos</th><th class="n">Crédito gerado ao cliente</th><th class="n">Crédito útil (B2B)</th><th class="n">Carga total</th></tr></thead>
+      <tbody>${ivaRows.map(r=>`<tr class="${r===best33?'hl':''}"><td><b>${r[0]}</b>${r===best33?'<span class="badge">menor carga</span>':''}</td><td class="f">${r[1]}</td><td class="n">${r[2]}</td><td class="n">${r[3]}</td><td class="n">${r[4]}</td><td class="n"><b>${brl(r[5])}</b></td></tr>`).join('')}</tbody>
+    </table></div>
+    ${hibTxt}
+    <div class="note warn"><b class="t">⚠️ Fornecedores do Simples/MEI geram crédito limitado</b>Quem compra de empresa do Simples só aproveita o IBS/CBS efetivamente pago dentro do DAS (em geral 1% a 4%), enquanto a compra de uma empresa do regime regular (ou do Simples Híbrido) gera crédito integral de até ${pct(aliqIVA)}. A fatia de IBS cresce gradualmente entre 2029 e 2033, e o crédito gerado depende do regime escolhido. Consulte seu contador.</div>
+    <div class="note ok"><b class="t">✅ Como aproveitar (entradas)</b><ul>
+      <li>Exija nota fiscal com CBS/IBS destacados dos fornecedores — sem destaque não há crédito.</li>
+      <li>Prefira fornecedores do regime regular (que destacam o imposto integral) ou que optem pelo Simples Híbrido.</li>
+      <li>O crédito abate o IBS/CBS que sua empresa deve pagar; com a nova regra, praticamente toda aquisição (inclusive uso e consumo) gera crédito.</li>
+      <li>Acompanhe o split payment: o imposto passa a ser retido no pagamento, o que afeta o fluxo de caixa.</li>
+    </ul></div>
+    <div class="note warn">⚠️ Estimativa no sistema pleno (2033) com alíquotas de referência estimadas; as alíquotas definitivas serão fixadas pelo Senado e pelos entes federativos. Durante a transição, os regimes do Simples continuam com as tabelas atuais (LC 123/2006). *IPI zerado exceto para produtos com industrialização incentivada na Zona Franca de Manaus; o Imposto Seletivo (produtos prejudiciais à saúde/ao meio ambiente) não foi considerado.</div>
+  </section>
+
+  <section class="card" id="relatorio">
+    <h2>📄 Relatório de planejamento</h2>
+    <p class="sub">${esc(inp.nome)} · Gerado em ${new Date().toLocaleDateString('pt-BR')} · Valores anuais</p>
+    <div class="grid g2" style="gap:6px 16px;font-size:14px;margin-bottom:12px">
+      <div>Faturamento: <b>${brl(inp.R)}</b></div>
+      <div>Setor: <b>${esc(setoresTxt)}</b></div>
+      <div>Premissas: <b style="color:var(--brand-ink)">Folha: salários ${brl(inp.salMes)}/mês + pró-labore ${brl(inp.proMes)}/mês</b></div>
+      <div>Despesas dedutíveis: <b>${brl(inp.desp)}</b> · B2B: <b>${pct(inp.b2b,0)}</b></div>
+    </div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Regime tributário</th><th class="n">Impostos anuais (2026)</th><th class="n">Alíquota efetiva</th><th class="n">Resultado líquido*</th><th class="n">Projeção 2033</th></tr></thead>
+      <tbody>${regs.map(r=>{
+        const p = r.id==='mei'?null:(p33[r.id]);
+        const liq = inp.R - inp.desp - f.total - f.fgts - (isFinite(r.total)?r.total:0);
+        return `<tr class="${r===best?'hl':''}"><td><b>${r.nome}</b>${r===best?'<span class="badge">Recomendado</span>':''}</td><td class="n">${r.elegivel?brl(r.total):'não elegível'}</td><td class="n">${r.elegivel?pct(r.total/inp.R):'—'}</td><td class="n">${r.elegivel?brl(liq):'—'}</td><td class="n">${p==null?'—':brl(p)}</td></tr>`;}).join('')}
+      ${s.elegivel?`<tr><td><b>Simples Híbrido</b> <span class="f">(a partir de 2027)</span></td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">${brl(p33.hibrido)}</td></tr>`:''}</tbody>
+    </table></div>
+    <p class="help">*Faturamento − despesas − folha/FGTS − tributos. Recomendação 2026: <b>${best.nome}</b>. Menor carga projetada em 2033: <b>${best33[0]}</b>.</p>
+    <div class="actions">
+      <button class="btn ghost small" type="button" id="btnPrint">🖨️ Imprimir / PDF</button>
+      <button class="btn small" type="button" id="btnCsv">⬇ Baixar planilha (CSV)</button>
+      <button class="btn small" type="button" id="btnHtml">⬇ Baixar relatório</button>
+    </div>
+  </section>`;
+  const out = $('#results');
+  out.innerHTML = html; out.hidden = false;
+  bindChart(proj);
+  $('#btnPrint').onclick = () => { document.querySelectorAll('details.mem').forEach(d=>d.open=true); window.print(); };
+  $('#btnCsv').onclick = baixarCSV;
+  $('#btnHtml').onclick = baixarHTML;
+  out.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function download(name, content, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const slug = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/gi,'-').toLowerCase().replace(/^-|-$/g,'') || 'empresa';
+function baixarCSV(){
+  if (!ultimo) return;
+  const {inp, regs, proj} = ultimo;
+  const n = v => v==null||!isFinite(v) ? '' : v.toFixed(2).replace('.',',');
+  const L = [['Relatório de planejamento tributário', inp.nome], ['Faturamento anual', n(inp.R)], [], ['Regime','Item','Valor (R$)']];
+  regs.forEach(r => { if (!r.elegivel) { L.push([r.nome,'Não elegível: '+r.motivo,'']); return; } r.itens.forEach(([l,v])=>L.push([r.nome,l.trim(),n(v)])); L.push([r.nome,'TOTAL',n(r.total)]); });
+  L.push([], ['Ano', ...SERIES.map(s=>s.nome)]);
+  proj.forEach(r => L.push([r.ano, ...SERIES.map(s=>n(r[s.k]))]));
+  const csv = '﻿' + L.map(row=>row.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(';')).join('\r\n');
+  download(`planejamento-tributario-${slug(inp.nome)}.csv`, csv, 'text/csv;charset=utf-8');
+}
+function baixarHTML(){
+  if (!ultimo) return;
+  document.querySelectorAll('details.mem').forEach(d=>d.open=true);
+  const css = document.querySelector('style').outerHTML;
+  const doc = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Planejamento tributário — ${esc(ultimo.inp.nome)}</title>${css}<style>.actions{display:none}.tip{display:none}</style></head><body><main class="wrap" style="padding-top:24px">${$('#results').innerHTML}</main><footer>${document.querySelector('footer').innerHTML}</footer></body></html>`;
+  download(`relatorio-tributario-${slug(ultimo.inp.nome)}.html`, doc, 'text/html;charset=utf-8');
+}
+
+/* ======================= Persistência local ======================= */
+function save(){
+  try {
+    const d = {state, f:{}};
+    FIELDS.forEach(id => d.f[id] = $('#'+id).value);
+    d.f.hosp = $('#hosp').checked; d.f.lc224 = $('#lc224').checked;
+    localStorage.setItem(STORE, JSON.stringify(d));
+  } catch(e){}
+}
+function load(){
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!d) return;
+    Object.assign(state, d.state);
+    FIELDS.forEach(id => { if (d.f[id]!==undefined) $('#'+id).value = d.f[id]; });
+    $('#hosp').checked = !!d.f.hosp; $('#lc224').checked = d.f.lc224!==false;
+  } catch(e){}
+}
+
+/* tema */
+$('#themeBtn').addEventListener('click', () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('simtrib.theme', r.dataset.theme); } catch(e){}
+});
+try { const t = localStorage.getItem('simtrib.theme'); if (t) document.documentElement.dataset.theme = t; } catch(e){}
+
+load();
+renderChips();
+setMode(state.mode);
+$('#simular').addEventListener('click', simular);
+document.addEventListener('keydown', ev => { if (ev.key==='Enter' && ev.target.matches('#form input')) simular(); });
+})();
+</script>
+</body>
+</html>
